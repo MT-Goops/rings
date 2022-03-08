@@ -1,0 +1,45 @@
+<svg viewBox="20 20 88 88" xmlns="http://www.w3.org/2000/svg">
+<style>
+.sapphire{fill:#2D5DA1}
+.amethyst{fill:#9966CC}
+.emerald{fill:#50C878}
+.ruby{fill:#9B111E}
+.topaz{fill:#FFC87C}
+</style>
+<g transform="scale(4)">
+<clipPath id='top'>
+<path d="
+M 15.5,9 a 10,7 0 1,0 1,0 z
+M 15.5,12 a 8.5,6 0 1,0 1,0 z
+" clip-rule="evenodd"/>
+</clipPath>
+<ellipse cx="16" cy="16" rx="10" ry="7" fill="navy" clip-path="url('#top')"/>
+
+<clipPath id='hole'>
+<path d="
+M 15.5,9 a 10,7 0 1,0 1,0 z
+M 15.5,6 a 8.5,6 0 1,0 1,0 z
+" clip-rule="evenodd"/>
+</clipPath>
+<ellipse cx="16" cy="16" rx="10" ry="7" fill="navy" clip-path="url('#hole')"/>
+
+<clipPath id='shadow'>
+<path d="
+M 15.5,6 a 8.5,6 0 1,0 1,0 z
+M 15.5,7 a 9,6 0 1,0 1,0 z
+" clip-rule="evenodd"/>
+</clipPath>
+<ellipse cx="16" cy="16" rx="10" ry="7" fill="black" clip-path="url('#shadow')"/>
+
+<ellipse cx="10" cy="19.5" rx=".5" ry="1" class="sapphire"/>
+<ellipse cx="12" cy="19.5" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="12" cy="21.5" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="14" cy="21" rx=".5" ry="1" class="sapphire"/>
+<ellipse cx="16" cy="20" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="16" cy="22" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="18" cy="21" rx=".5" ry="1" class="sapphire"/>
+<ellipse cx="20" cy="19.5" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="20" cy="21.5" rx="1" ry="1" class="sapphire"/>
+<ellipse cx="22" cy="19.5" rx=".5" ry="1" class="sapphire"/>
+</g>
+</svg>
