@@ -134,12 +134,12 @@ end
 
 -- REFRESH
 
-rings.timer = 0
+local timer = 0
 
 minetest.register_globalstep(function(dtime)
-  rings.timer = rings.timer + dtime
-  if rings.timer < 1 then return end
-  rings.timer = 0
+  timer = timer + dtime
+  if timer < 1 then return end
+  timer = 0
   for u,p in pairs(rings.users) do
     local usr = minetest.get_player_by_name(u)
     if not usr then

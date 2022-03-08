@@ -18,6 +18,21 @@ local function fly_deactivate(user)
   minetest.set_player_privs(playername, privs)
 end
 
+-- SHINE
+
+local function shine_activate(user)
+  p = rings.profile(user)
+  p.fx.path = {}
+end
+
+local function shine_deactivate(user)
+  p = rings.profile(user)
+  for n,t in pairs(p.fx.path) do
+    minetest.remove_node(n)
+  end
+  p.fx.path = nil
+end
+
 -- IRON FIST
 local function iron_fist_apply(itemstack, user, pointed_thing)
   if pointed_thing.type=="node" then
@@ -44,6 +59,8 @@ rings.effects = {
   },
   shine           = {
     name          = "Shining",
+    on_activate   = shine_activate,
+    on_deactivate = shine_deactivate,
   },
   iron_fist       = {
     name          = "Iron Fist",
@@ -69,17 +86,50 @@ end, true)
 -- SHINE
 
 local glownode = "goops_rings:air_glowing"
-local def = table.copy(minetest.registered_nodes["air"])
-def.paramtype = "light"
-def.light_source = 14
-def.on_construct = function(pos) minetest.after(.1, minetest.remove_node,pos) end
-minetest.register_node(glownode,def)
+local glowtime = .6
+
+minetest.register_node(glownode, {
+  description         = "Glowing Air",
+  drawtype            = "airlike",
+  paramtype           = "light",
+  sunlight_propagates = true,
+  light_source        = 14,
+  walkable            = false,
+  pointable           = false,
+  diggable            = false,
+  buildable_to        = true,
+  air_equivalent      = true,
+  drop                = "",
+  groups              = {
+    not_in_creative_inventory = 1
+  },
+})
+
+minetest.register_lbm({
+	name = "goops_rings:remove_light",
+	nodenames = {glownode},
+	run_at_every_load = true, 
+	action = minetest.remove_node,
+})
 
 minetest.register_globalstep(function(dtime)
   for u,p in pairs(rings.users) do
     if p.fx and p.fx.name == rings.effects.shine.name then 
+      local path = p.fx.path
+      if path then
+        for n,_ in pairs(path) do
+          path[n] = path[n] + dtime
+        end
+      end
       local pos = vector.add(vector.round(minetest.get_player_by_name(u):get_pos()),{x=0,y=1,z=0})
-      if minetest.get_node(pos).name=="air" then minetest.set_node(pos,{name=glownode}) end
+      if minetest.get_node(pos).name=="air" then 
+        minetest.set_node(pos,{name = glownode}) 
+        path[pos] = 0
+      end
+      for n,t in pairs(path) do if n~= pos and t > glowtime then
+        minetest.remove_node(n)
+      end
     end
   end
+end
 end)
