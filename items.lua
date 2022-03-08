@@ -31,11 +31,13 @@ local ring_quality = {
 ------
 ------
 
+-- RECIPE
+
 local function ring_recipe(mdl, lvl)
   -- ingredients
   local R = "goops_rings:"..mdl.."_ring"..tostring(lvl-1)
   local M = ring_quality[lvl].metal
-  local G = ring_models[mdl].gem
+  local G = ring_models[mdl] and ring_models[mdl].gem or "group:glooptest_gem"
   local D = "default:diamond"
   -- recipe
   local a,b,c,d
@@ -46,17 +48,52 @@ local function ring_recipe(mdl, lvl)
   return({{a,c,b},{c,d,c},{b,c,a}})
 end
 
+-- RANDOM RING
+
+local function get_random_ring(itemstack, user, pointed_thing)
+  local model_names = {}
+  for n,_ in pairs(ring_models) do model_names[#model_names+1] = n end
+  local model = model_names[math.random(#model_names)]
+  local level = itemstack:get_name():sub(-1)
+  minetest.item_drop(ItemStack("goops_rings:"..model.."_ring"..level), user, user:get_pos())
+  itemstack:take_item()
+  return itemstack
+end
+
+for i,q in ipairs(ring_quality) do
+  local id = "random_ring"..i
+  minetest.register_craftitem("goops_rings:"..id,{
+    description     = q.name.."Random Ring",
+    inventory_image = "goops_"..id..".png",
+    groups = { ["goops_ring"..i] = 1 },
+    on_use = get_random_ring
+  })
+  minetest.register_craft({
+    output = "goops_rings:"..id.." 2",
+    type   = "shapeless",
+    recipe = {"group:goops_ring"..i,"group:goops_ring"..i,"group:goops_ring"..i}
+  })
+  minetest.register_craft({
+    output = "goops_rings:"..id,
+    recipe = ring_recipe("random",i)
+  })
+end
+
+-- REGISTER RINGS
+
+table.insert(armor.elements, "ring")
+
 local function register_ring(ringdef)
-  local lvl = "ring"..tostring(ringdef.level)
+  local lvl = "ring"..ringdef.level
   local id = ringdef.model.."_"..lvl
   armor:register_armor( "goops_rings:"..id,
   {
-    description = ringdef.name,
+    description     = ringdef.name,
     inventory_image = "goops_"..id..".png",
-    texture = "goops_"..lvl..".png",
-    preview = "goops_"..lvl.."_preview.png",
-    groups = { armor_ring = 1 },
-    wield_scale = {x=.25, y=.25, z=.25},
+    texture         = "goops_"..lvl..".png",
+    preview         = "goops_"..lvl.."_preview.png",
+    groups          = { armor_ring = 1 , ["goops_"..lvl] = 1 },
+    wield_scale     = {x=.25, y=.25, z=.25},
   })
   minetest.register_craft({
     output = "goops_rings:"..id,
@@ -64,15 +101,15 @@ local function register_ring(ringdef)
   })
 end
 
-table.insert(armor.elements, "ring")
-
 for m,_ in pairs(ring_models) do for i,q in ipairs(ring_quality) do
   register_ring({
     model = m,
     level = i,
-    name = q.name..m:gsub("^%l",string.upper).." Ring",
+    name  = q.name..m:gsub("^%l",string.upper).." Ring",
   })
 end end
+
+-- API
 
 function rings.get_ring(user)
   local R = armor:get_weared_armor_elements(user).ring

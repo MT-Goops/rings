@@ -13,6 +13,8 @@ Minetest mod that adds rings with temporary player effects
 
 * _Enlightning Ring_ : makes player shine
 
+* _Random Ring_ : drops a random ring
+
 #### Where to find me ?  
 
 I usually play on the Minerland server, and if not online, there is a mailbox at my home (in front of the travelnet cabine)

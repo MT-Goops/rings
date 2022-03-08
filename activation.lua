@@ -161,9 +161,11 @@ end)
 -- REMOVE
 
 local function remove(user)
-  local p = rings.profile(user)
-  if p.fx and p.fx.on_deactivate then p.fx.on_deactivate(user) end
-  user_update(user,nil)
+  if user then
+    local p = rings.profile(user)
+    if p.fx and p.fx.on_deactivate then p.fx.on_deactivate(user) end
+    user_update(user,nil)
+  end
 end
 
 minetest.register_on_dieplayer(function(user)

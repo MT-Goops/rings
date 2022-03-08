@@ -5,10 +5,11 @@ TODO shift + click : hud_toggle
 TODO shift + right click : auto-activation
 
 # Random ring : 
-TODO def : tool with 4 lvls
-TODO recipe with group:glooptest_gem (mais pas toutes pareilles)
-TODO on_use : gives a ring
+DONE
 
 # Readme :
 TODO screen captures
 DONE server Minerland
+
+# Fix
+the recipes "from" do not appear in craft guide

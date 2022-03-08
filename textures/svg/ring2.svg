@@ -5,6 +5,7 @@
 .emerald{fill:#50C878}
 .ruby{fill:#9B111E}
 .topaz{fill:#FFC87C}
+.black{fill:#444444}
 </style>
 <g transform="scale(4)">
 <clipPath id='top'>
@@ -31,11 +32,11 @@ M 15.5,7 a 9,6 0 1,0 1,0 z
 </clipPath>
 <ellipse cx="16" cy="16" rx="10" ry="7" fill="black" clip-path="url('#shadow')"/>
 
-<ellipse cx="12" cy="19.5" rx="1" ry="1" class="amethyst"/>
-<ellipse cx="12" cy="21.5" rx="1" ry="1" class="amethyst"/>
-<ellipse cx="16" cy="20" rx="1" ry="1" class="amethyst"/>
-<ellipse cx="16" cy="22" rx="1" ry="1" class="amethyst"/>
-<ellipse cx="20" cy="19.5" rx="1" ry="1" class="amethyst"/>
-<ellipse cx="20" cy="21.5" rx="1" ry="1" class="amethyst"/>
+<ellipse cx="12" cy="19.5" rx="1" ry="1" class="black"/>
+<ellipse cx="12" cy="21.5" rx="1" ry="1" class="black"/>
+<ellipse cx="16" cy="20" rx="1" ry="1" class="black"/>
+<ellipse cx="16" cy="22" rx="1" ry="1" class="black"/>
+<ellipse cx="20" cy="19.5" rx="1" ry="1" class="black"/>
+<ellipse cx="20" cy="21.5" rx="1" ry="1" class="black"/>
 </g>
 </svg>
