@@ -1,8 +1,6 @@
 local cooldown = tonumber(minetest.settings:get("rings_cooldown")) or 15
 
 -- PROFILES
--- TODO shift + click : hud_toggle
-
 rings.users = {}
 
 function rings.profile(user)
@@ -75,8 +73,6 @@ end
 
 
 -- ACTIVATE/DEACTIVATE
--- TODO shift + right click : auto-activation
-
 local function notify(user, str)
   minetest.chat_send_player(user:get_player_name(), str)
 end
