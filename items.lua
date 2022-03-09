@@ -37,7 +37,7 @@ local function ring_recipe(mdl, lvl)
   -- ingredients
   local R = "goops_rings:"..mdl.."_ring"..tostring(lvl-1)
   local M = ring_quality[lvl].metal
-  local G = ring_models[mdl] and ring_models[mdl].gem or "group:glooptest_gem"
+  local G = ring_models[mdl] and ring_models[mdl].gem or "goops_rings:mismatched_gems"
   local D = "default:diamond"
   -- recipe
   local a,b,c,d
@@ -49,6 +49,17 @@ local function ring_recipe(mdl, lvl)
 end
 
 -- RANDOM RING
+
+minetest.register_craftitem("goops_rings:mismatched_gems",{
+  description = "Mismatched gems",
+  inventory_image = "goops_mismatched_gems.png"
+})
+
+minetest.register_craft({
+  output = "goops_rings:mismatched_gems 5",
+  type   = "shapeless",
+  recipe = {"group:glooptest_gem","group:glooptest_gem","group:glooptest_gem","group:glooptest_gem","group:glooptest_gem"},
+})
 
 local function get_random_ring(itemstack, user, pointed_thing)
   local model_names = {}
