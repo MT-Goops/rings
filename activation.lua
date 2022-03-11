@@ -1,13 +1,41 @@
-local cooldown = tonumber(minetest.settings:get("rings_cooldown")) or 15
+---------
+-- API --
+---------
 
--- PROFILES
 rings.users = {}
 
 function rings.profile(user)
-  -- also used in effects.lua
   local playername = user:get_player_name()
   if not rings.users[playername] then rings.users[playername] = {} end
   return rings.users[playername]
+end
+
+--[[-- profile structure
+{
+status        = nil/"usage/"cooldown",
+fx = {
+name          = effect_name,
+picture       = effect_picture,      -- Displayed in HUD
+check         = effect_check,        -- f(user). If set, returns a string when effect can't be applied
+on_activate   = effect_on_activate,  -- f(user). If set, called at activation
+iter          = effect_iter,         -- number. If set, effect_on_activate is called every iter seconds
+apply         = effect_apply,        -- f(itemstack, user, pointed_thing). If set, called via activation ring when effect is active
+on_deactivate = effect_deactivate,   -- f(user). If set, called at deactivation
+data          = {}                   -- User dependant data
+time_left     = time_left,
+},
+]]
+
+-----------------
+-- USER UPDATE --
+-----------------
+
+local cooldown = tonumber(minetest.settings:get("rings_cooldown")) or 15
+
+
+local function duration(level)
+  local dur = tonumber(minetest.settings:get("rings_dur")) or 15
+  return dur * 2^(level-1)
 end
 
 local function fx_update(user)
@@ -17,11 +45,11 @@ local function fx_update(user)
   elseif p.status == "usage" then
     local R = rings.get_ring(user)
     p.fx            = R.effect
-    p.fx.texture    = R.picture
-    p.fx.time_left  = R.duration
+    p.fx.picture    = R.picture
+    p.fx.time_left  = duration(R.level)
   elseif p.status == "cooldown" then
     p.fx            = { name = "Cooldown" }
-    p.fx.texture    = "goops_activation_ring.png"
+    p.fx.picture    = "goops_activation_ring.png"
     p.fx.time_left  = cooldown
   end
 end
@@ -49,7 +77,7 @@ local function hud_update(user)
         })
       }
     end
-    user:hud_change(p.hud.pic, "text", p.fx.texture)
+    user:hud_change(p.hud.pic, "text", p.fx.picture)
     user:hud_change(p.hud.txt, "text", p.fx.time_left)
   else
     if p.hud then
@@ -65,26 +93,25 @@ local function user_update(user, status)
   p.status = status
   fx_update(user)
   hud_update(user)
-  minetest.sound_play("goops_rings_spin",{to_player = user:get_player_name(),gain =.5})
+  minetest.sound_play("goops_rings_spin", {to_player = user:get_player_name(),gain =.5})
 end
 
-------
-------
+-------------------------
+-- ACTIVATE/DEACTIVATE --
+-------------------------
 
-
--- ACTIVATE/DEACTIVATE
 local function notify(user, str)
   minetest.chat_send_player(user:get_player_name(), str)
 end
 
-local function rings_activate(itemstack, user, pointed_thing)
+local function activate(itemstack, user, pointed_thing)
   local R = rings.get_ring(user)
   if not R then
-    notify(user,"Your not wearing a ring !\nTry and equip one...")
+    notify(user, "Your not wearing a ring !\nTry and equip one...")
   else
     local p = rings.profile(user)
     if p.status == "cooldown" then
-      notify(user,"Your ring is cooling down")
+      notify(user, "Your ring is cooling down")
     elseif p.status == "usage" then
       if p.fx.apply then
         p.fx.apply(itemstack, user, pointed_thing)
@@ -92,19 +119,19 @@ local function rings_activate(itemstack, user, pointed_thing)
         notify(user,"You are already using a ring !\nRight click to deactivate it...")
       end
     else
-      fx = R.effect
-      if (fx.check and not fx.check(user)) then
-        notify(user, fx.name.." is already permanently granted")
+      local fx = R.effect
+      if (fx.check and fx.check(user)) then
+        notify(user, fx.check(user))
       else
         user_update(user, "usage")
         if fx.on_activate then fx.on_activate(user) end
-        notify(user, "Activation of "..R.description.."\n"..fx.name.." granted for "..R.duration.." seconds")
+        notify(user, "Activation of "..R.description.."\n"..fx.name.." granted for "..duration(R.level).." seconds")
       end
     end
   end
 end
 
-local function rings_deactivate(user)
+local function deactivate(user)
   local p = rings.profile(user)
   if p.status == "usage" then
     if p.fx.on_deactivate then p.fx.on_deactivate(user) end
@@ -116,19 +143,15 @@ local function rings_deactivate(user)
   end
 end
 
-local function rings_stop(itemstack, user, pointed_thing)
-  local p = rings.profile(user)
-  if p.status == "cooldown" then
-    notify(user, "Your ring is cooling down")
-  else
-    rings_deactivate(user)
+local function stop(itemstack, user, pointed_thing)
+  if rings.profile(user).status == "usage" then
+    deactivate(user)
   end
 end
 
-------
-------
-
--- REFRESH
+-------------
+-- REFRESH --
+-------------
 
 local timer = 0
 
@@ -147,7 +170,7 @@ minetest.register_globalstep(function(dtime)
         if fx.time_left > 0 then
           if fx.iter then fx.on_activate(usr) end
         else
-          rings_deactivate(usr)
+          deactivate(usr)
         end
       end
       hud_update(usr)
@@ -155,10 +178,9 @@ minetest.register_globalstep(function(dtime)
   end
 end)
 
-------
-------
-
--- REMOVE
+-------------
+-- CLEANUP --
+-------------
 
 local function remove(user)
   if user then
@@ -168,32 +190,27 @@ local function remove(user)
   end
 end
 
-minetest.register_on_dieplayer(function(user)
-  remove(user)
-end)
+minetest.register_on_dieplayer(remove)
 
-minetest.register_on_leaveplayer(function(user)
-  remove(user)
-end)
+minetest.register_on_leaveplayer(remove)
 
 minetest.register_on_shutdown(function()
-  for u,_ in pairs(rings.users) do
-    remove(minetest.get_player_by_name(u))
-  end
+  for u,_ in pairs(rings.users) do remove(minetest.get_player_by_name(u)) end
 end)
 
-------
-------
 
--- Activation ring
+---------------------
+-- ACTIVATION RING --
+---------------------
 
 minetest.register_craftitem("goops_rings:activation_ring", {
   description = "Activation Ring",
   inventory_image = "goops_activation_ring.png",
   wield_scale = {x=.25, y=.25, z=.25},
   stack_max = 1,
-  on_use = rings_activate,
-  on_secondary_use = rings_stop
+  on_use = activate,
+  on_place = stop,
+  on_secondary_use = stop
 })
 
 minetest.register_craft({

@@ -1,0 +1,5 @@
+# Rings cooldown time
+rings_cooldown (Cooldown) int 15
+
+# Duration of temporary player effects
+rings_dur (Duration) int 15

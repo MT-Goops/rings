@@ -1,18 +1,15 @@
 Before v1.2
 
 # Shine :
-Shine in water...
+TODO Shine in water...
 
 # Activation ring : 
 TODO shift + click : hud_toggle
 TODO shift + right click : auto-activation
 
-# Random ring : 
-DONE
-
 # Readme :
 TODO screen captures
-DONE server Minerland
+TODO add badges
 
 # Fix
-the recipes "from" do not appear in craft guide
+the recipes do not appear for the ingredients in the craft guide of unified inventory
