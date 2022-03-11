@@ -2,7 +2,7 @@
 -- API --
 ---------
 
-table.insert(armor.elements, "ring")
+table.insert(armor.elements, "ring") -- use right mouse button to equip/swap armor rings in hotbar
 
 --[[-- template declaration for rings
   armor:register_armor(ring_name, {
@@ -10,19 +10,27 @@ table.insert(armor.elements, "ring")
     inventory_image = ring_image,
     texture         = ring_texture,
     preview         = ring_preview,
-    groups          = { armor_ring = ring_level , goops_fx = effect_id },
+    groups          = { armor_ring = ring_level , goops_fx = effect_id }, 
   })
 ]]
 
-function rings.get_ring(user)
+function rings.get_ring(user, bool)
   local R = armor:get_weared_armor_elements(user).ring
-  return {
-    name        = R,
-    description = minetest.registered_items[R].description,
-    picture     = minetest.registered_items[R].inventory_image,
-    level       = minetest.get_item_group(R, "armor_ring"),
-    effect      = rings.effect(minetest.get_item_group(R, "goops_fx")),
-  }
+  if not R then
+    if bool then
+      minetest.chat_send_player(user:get_player_name(),
+      "Your not wearing a ring !\nTry and equip one..."
+      )
+    end
+  else
+    return {
+      name        = R,
+      description = minetest.registered_items[R].description,
+      picture     = minetest.registered_items[R].inventory_image,
+      level       = minetest.get_item_group(R, "armor_ring"),
+      effect      = rings.effect(minetest.get_item_group(R, "goops_fx")),
+    }
+  end
 end
 
 ------------
