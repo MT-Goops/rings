@@ -10,7 +10,7 @@ table.insert(armor.elements, "ring") -- use right mouse button to equip/swap arm
     inventory_image = ring_image,
     texture         = ring_texture,
     preview         = ring_preview,
-    groups          = { armor_ring = ring_level , goops_fx = effect_id }, 
+    groups          = { armor_ring = ring_level , goops_fx = effect_id },
   })
 ]]
 
@@ -38,23 +38,23 @@ end
 ------------
 
 local ring_models = {
-  celestial = { 
-    gem = rings.gems.amethyst, 
+  celestial = {
+    gem = rings.gems.amethyst,
     effect = rings.effects.fly,
   },
-  infernal = { 
-    gem = rings.gems.ruby, 
+  infernal = {
+    gem = rings.gems.ruby,
     effect = rings.effects.fire_resistance,
   },
-  abyssal = { 
-    gem = rings.gems.sapphire, 
+  abyssal = {
+    gem = rings.gems.sapphire,
     effect = rings.effects.breath_hold,
   },
-  enlightning = { 
-    gem = rings.gems.topaz, 
+  enlightning = {
+    gem = rings.gems.topaz,
     effect = rings.effects.shine,
   },
-  hardening = { 
+  hardening = {
     gem = rings.gems.emerald,
     effect = rings.effects.iron_fist,
   },
@@ -67,9 +67,30 @@ local ring_quality = {
   { name = "Supreme " }
 }
 
-------------
--- RECIPE --
-------------
+
+--------------------
+-- REGISTER RINGS --
+--------------------
+
+local function register_ring(model,level,quality)
+  local name = "goops_rings:"..model.."_ring"..level
+  armor:register_armor(name, {
+    description     = quality.name..model:gsub("^%l",string.upper).." Ring",
+    inventory_image = "goops_"..model.."_ring"..level..".png",
+    texture         = "goops_ring"..level..".png",
+    preview         = "goops_ring"..level.."_preview.png",
+    groups          = { armor_ring = level, goops_fx = ring_models[model].effect.id, ["goops_ring"..level] = 1},
+    wield_scale     = {x=.25, y=.25, z=.25},
+  })
+end
+
+for m,_ in pairs(ring_models) do for i,q in ipairs(ring_quality) do
+  register_ring(m,i,q)
+end end
+
+----------------------
+-- REGISTER RECIPES --
+----------------------
 
 local function ring_recipe(mdl, lvl)
   -- ingredients
@@ -86,20 +107,8 @@ local function ring_recipe(mdl, lvl)
   return({{a,c,b},{c,d,c},{b,c,a}})
 end
 
---------------------
--- REGISTER RINGS --
---------------------
-
-local function register_ring(model,level,quality)
+local function register_recipe(model,level,quality)
   local name = "goops_rings:"..model.."_ring"..level
-  armor:register_armor(name, {
-    description     = quality.name..model:gsub("^%l",string.upper).." Ring",
-    inventory_image = "goops_"..model.."_ring"..level..".png",
-    texture         = "goops_ring"..level..".png",
-    preview         = "goops_ring"..level.."_preview.png",
-    groups          = { armor_ring = level, goops_fx = ring_models[model].effect.id, ["goops_ring"..level] = 1},
-    wield_scale     = {x=.25, y=.25, z=.25},
-  })
   minetest.register_craft({
     output = name,
     recipe = ring_recipe(model,level)
@@ -107,7 +116,7 @@ local function register_ring(model,level,quality)
 end
 
 for m,_ in pairs(ring_models) do for i,q in ipairs(ring_quality) do
-  register_ring(m,i,q)
+  register_recipe(m,i,q)
 end end
 
 -----------------

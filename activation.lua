@@ -35,6 +35,16 @@ end
 }
 ]]
 
+function rings.auto_activate(user)
+  local p = rings.profile(user)
+  if p.flags.status == 0 and p.flags.auto == 1 then
+    local ring = "goops_rings:activation_ring"
+    if user:get_inventory():contains_item("main", ring) then
+      minetest.registered_items[ring].on_use(ItemStack(""),user)
+    end
+  end
+end
+
 -------------------
 -- LOAD SETTINGS --
 -------------------
@@ -71,7 +81,7 @@ end
 
 local function hud_update(user)
   local p = rings.profile(user)
-  if p.flags.hud == 0 and p.fx or p.flags.hud == 2 then
+  if p.flags.hud ~= 1 and (p.fx or p.flags.hud == 2 or p.flags.auto == 1) then
     if not p.hud then
       p.hud={
         pic = user:hud_add({
@@ -97,8 +107,15 @@ local function hud_update(user)
       user:hud_change(p.hud.txt, "text", p.fx.time_left)
     else
       local R = rings.get_ring(user)
-      user:hud_change(p.hud.pic, "text", R and R.picture or "blank.png")
-      user:hud_change(p.hud.txt, "text", R and 0 or "")
+      if p.flags.auto == 1 then
+        if user:get_inventory():contains_item("main", "goops_rings:activation_ring") then
+          user:hud_change(p.hud.pic, "text", R and R.picture or "blank.png")
+          user:hud_change(p.hud.txt, "text", R and "auto" or "")
+        end
+      else
+        user:hud_change(p.hud.pic, "text", R and R.picture or "blank.png")
+        user:hud_change(p.hud.txt, "text", R and "0" or "")
+      end
     end
   else
     if p.hud then
@@ -116,6 +133,46 @@ local function user_update(user)
   hud_update(user)
   minetest.sound_play("goops_rings_spin", {to_player = user:get_player_name(),gain =.5})
 end
+
+---------------------
+-- AUTO-ACTIVATION --
+---------------------
+
+minetest.register_globalstep(function(dtime)
+  for _,u in pairs(minetest.get_connected_players()) do
+    local R = rings.get_ring(u)
+    if R and R.effect.name == rings.effects.shine.name then
+      local pos = vector.add(vector.round(u:get_pos()),{x=0,y=1,z=0})
+      local light = minetest.get_node_light(pos)
+      if light and light < 8 then
+        rings.auto_activate(u)
+      end
+    end
+  end
+end)
+
+local function falling(user)
+  local falling = true
+  local fall = 0
+  repeat
+    fall = fall + 1
+    local pos = vector.add(vector.round(user:get_pos()),{x=0,y=-fall,z=0})
+    local node = minetest.get_node(pos).name
+    falling = not minetest.registered_nodes[node].walkable
+  until not falling or fall == 4
+  return falling
+end
+
+minetest.register_globalstep(function(dtime)
+  for _,u in pairs(minetest.get_connected_players()) do
+    local R = rings.get_ring(u)
+    if R and R.effect.name == rings.effects.fly.name then
+      if falling(u) and not u:get_player_control().sneak then
+        rings.auto_activate(u)
+      end
+    end
+  end
+end)
 
 -------------------------
 -- ACTIVATE/DEACTIVATE --
@@ -226,7 +283,6 @@ local function lmb(itemstack, user, pointed_thing)
   if user:get_player_control().sneak then 
     local p = rings.profile(user)
     p.flags.auto = (p.flags.auto + 1) % 2
-    print(p.flags.auto)
   else 
     activate(itemstack, user, pointed_thing)
   end
@@ -236,7 +292,6 @@ local function rmb(itemstack, user, pointed_thing)
   if user:get_player_control().sneak then
     local p = rings.profile(user)
     p.flags.hud = (p.flags.hud + 1) % 3
-    print(p.flags.hud)
   else 
     if rings.profile(user).flags.status == 1 then -- only if active
       deactivate(user)

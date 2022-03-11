@@ -4,7 +4,7 @@
 
 rings.effects = {}
 
---[[-- definition template 
+--[[-- definition template
 effect          = {
   id            = effect_id            -- unique identifier
   name          = effect_name,
@@ -49,7 +49,7 @@ end
 ---------
 
 local function fly_check(user)
-  if minetest.get_player_privs(user:get_player_name()).fly then 
+  if minetest.get_player_privs(user:get_player_name()).fly then
     return "Fly privilege is already permanently granted"
   end
 end
@@ -86,9 +86,13 @@ end
 
 local function breath_hold_init()
   minetest.register_on_player_hpchange(function(user, hp_change, reason)
+    local R = rings.get_ring(user)
+    if reason.type == "drown" and R and R.effect.name == rings.effects.breath_hold.name then
+      rings.auto_activate(user)
+    end
     local p = rings.profile(user)
     if reason.type == "drown" and p.fx and p.fx.name == rings.effects.breath_hold.name then
-      hp_change = 0 
+      hp_change = 0
     end
     return hp_change
   end, true)
@@ -99,7 +103,7 @@ end
 ---------------------
 
 local function is_fire(reason)
-  if reason.type == "node_damage" then 
+  if reason.type == "node_damage" then
     for _,igniter in pairs(armor.fire_nodes) do
       if (reason.node == igniter[1]) then return true end
     end
@@ -108,6 +112,10 @@ end
 
 local function fire_resistance_init()
   minetest.register_on_player_hpchange(function(user, hp_change, reason)
+    local R = rings.get_ring(user)
+    if is_fire(reason) and R and R.effect.name == rings.effects.fire_resistance.name then
+      rings.auto_activate(user)
+    end
     local p = rings.profile(user)
     if is_fire(reason) and p.fx and p.fx.name == rings.effects.fire_resistance.name then
       hp_change = 0
@@ -144,7 +152,7 @@ minetest.register_node(glownode, {
 minetest.register_lbm({
   name              = "goops_rings:remove_light",
   nodenames         = {glownode},
-  run_at_every_load = true, 
+  run_at_every_load = true,
   action            = minetest.remove_node,
 })
 
@@ -152,7 +160,7 @@ minetest.register_lbm({
 
 local function shine_globalstep(dtime)
   for u,p in pairs(rings.users) do
-    if p.fx and p.fx.name == rings.effects.shine.name then 
+    if p.fx and p.fx.name == rings.effects.shine.name then
       local path = p.fx.data.path
       if path then
         for n,_ in pairs(path) do
@@ -160,8 +168,8 @@ local function shine_globalstep(dtime)
         end
       end
       local pos = vector.add(vector.round(minetest.get_player_by_name(u):get_pos()),{x=0,y=1,z=0})
-      if minetest.get_node(pos).name=="air" then 
-        minetest.set_node(pos, {name = glownode}) 
+      if minetest.get_node(pos).name=="air" then
+        minetest.set_node(pos, {name = glownode})
         path[pos] = 0
       end
       for n,t in pairs(path) do
