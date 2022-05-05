@@ -182,7 +182,7 @@ local function shine_globalstep(dtime)
 end
 
 local function shine_on_deactivate(user)
-  p = rings.profile(user)
+  local p = rings.profile(user)
   for n,t in pairs(p.fx.data.path) do
     minetest.remove_node(n)
   end

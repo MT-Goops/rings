@@ -140,12 +140,14 @@ end
 
 minetest.register_globalstep(function(dtime)
   for _,u in pairs(minetest.get_connected_players()) do
-    local R = rings.get_ring(u)
-    if R and R.effect.name == rings.effects.shine.name then
-      local pos = vector.add(vector.round(u:get_pos()),{x=0,y=1,z=0})
-      local light = minetest.get_node_light(pos)
-      if light and light < 8 then
-        rings.auto_activate(u)
+    if rings.profile(u).flags.auto == 1 then
+      local R = rings.get_ring(u)
+      if R and R.effect.name == rings.effects.shine.name then
+        local pos = vector.add(vector.round(u:get_pos()),{x=0,y=1,z=0})
+        local light = minetest.get_node_light(pos)
+        if light and light < 8 then
+          rings.auto_activate(u)
+        end
       end
     end
   end
@@ -157,18 +159,20 @@ local function falling(user)
   repeat
     fall = fall + 1
     local pos = vector.add(vector.round(user:get_pos()),{x=0,y=-fall,z=0})
-    local node = minetest.get_node(pos).name
-    falling = not minetest.registered_nodes[node].walkable
+    local node = minetest.registered_nodes[minetest.get_node(pos).name]
+    falling = node and not node.walkable or false
   until not falling or fall == 4
   return falling
 end
 
 minetest.register_globalstep(function(dtime)
   for _,u in pairs(minetest.get_connected_players()) do
-    local R = rings.get_ring(u)
-    if R and R.effect.name == rings.effects.fly.name then
-      if falling(u) and not u:get_player_control().sneak then
-        rings.auto_activate(u)
+    if rings.profile(u).flags.auto == 1 then
+      local R = rings.get_ring(u)
+      if R and R.effect.name == rings.effects.fly.name then
+        if falling(u) and not u:get_player_control().sneak then
+          rings.auto_activate(u)
+        end
       end
     end
   end
@@ -262,6 +266,11 @@ local function remove(user)
     local p = rings.profile(user)
     if p.fx and p.fx.on_deactivate then
       p.fx.on_deactivate(user) 
+    end
+    if p.hud then
+      user:hud_remove(p.hud.pic)
+      user:hud_remove(p.hud.txt)
+      p.hud = nil
     end
     rings.users[user:get_player_name()] = nil
   end
