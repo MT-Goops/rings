@@ -76,7 +76,6 @@ local function iron_fist_apply(itemstack, user, pointed_thing)
   if pointed_thing.type=="node" then
     minetest.dig_node(pointed_thing.under)
     minetest.sound_play("goops_rings_gong",{to_player = user:get_player_name(),gain =.5})
-    minetest.chat_send_player(user:get_player_name(), "Feel the Power of the Iron Fist")
   end
 end
 
@@ -174,7 +173,10 @@ local function shine_globalstep(dtime)
       end
       for n,t in pairs(path) do
         if n~= pos and t > glowtime then
-          minetest.remove_node(n)
+          if minetest.get_node(n).name == glownode then
+            minetest.remove_node(n)
+          end
+          path[n] = nil
         end
       end
     end

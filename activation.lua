@@ -86,16 +86,16 @@ local function hud_update(user)
       p.hud={
         pic = user:hud_add({
           hud_elem_type = "image",
-          position      = {x = 0, y = 1},
-          offset        = {x = 44, y = -44},
+          position      = {x = 1, y = 1},
+          offset        = {x = -66, y = -44},
           alignment     = {x = 0, y = 0},
           scale         = {x = 1, y = 1},
         }),
         txt = user:hud_add({
           hud_elem_type = "text",
           style         = 1,
-          position      = {x = 0, y = 1},
-          offset        = {x = 44, y = -44},
+          position      = {x = 1, y = 1},
+          offset        = {x = -66, y = -44},
           alignment     = {x = 0, y = 0},
           scale         = {x = 100, y = 100},
           number        = 0xFFFFFF,
@@ -181,9 +181,10 @@ end)
 -------------------------
 -- ACTIVATE/DEACTIVATE --
 -------------------------
+local verbose = minetest.settings:get("rings_verbose") or false
 
 local function notify(user, str)
-  minetest.chat_send_player(user:get_player_name(), str)
+  if verbose then minetest.chat_send_player(user:get_player_name(), str) end
 end
 
 local function activate(itemstack, user, pointed_thing)

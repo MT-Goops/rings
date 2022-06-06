@@ -1,3 +1,6 @@
+# Verbosity
+rings_verbose (Verbose) bool false
+
 # Rings cooldown time
 rings_cooldown (Cooldown) int 15
 
