@@ -24,12 +24,3 @@ Minetest mod that adds rings with temporary player effects
   - in sneak mode: toggles automatic activation/toggles hud (primary/secondary usage).
 
 * ![ring](./textures/goops_random_ring1.png) _Random Ring_ : drops a random ring
-
-#### Where to find me ?  
-
-I usually play on the Minerland server, and if not online, there is a mailbox at my home (in front of the travelnet cabine)
-
-> Amelaye in Minerland \<188.165.239.63:30000\>  
-> More infos : http://minetest.amelieonline.net  
-
-(also, my mods should run there)
