@@ -129,31 +129,39 @@ end
 
 -- config
 local glowtime = .6
+local glownodes = { "air", "default:water_source", "default:water_flowing", "default:river_water_source", "default:river_water_flowing" }
 
--- glownode
-local glownode = "goops_rings:air_glowing"
+-- glownodes
+ 
+local revert = {}
 
-minetest.register_node(glownode, {
-  description         = "Glowing Air",
-  drawtype            = "airlike",
-  paramtype           = "light",
-  sunlight_propagates = true,
-  light_source        = 14,
-  walkable            = false,
-  pointable           = false,
-  diggable            = false,
-  buildable_to        = true,
-  air_equivalent      = true,
-  drop                = "",
-  groups              = { not_in_creative_inventory = 1 },
-})
+local function register_glownode(n)
+  local g = "goops_rings:"..n:gsub('.*:','').."_glowing"
+  revert[g] = n
+  local def = table.copy(minetest.registered_nodes[n])
+  def.description = "Glowing "..def.description
+  def.light_source = 14
+  def.groups.not_in_creative_inventory = 1
+  def.liquidtype = nil
+  minetest.register_node(g, def)
+  minetest.register_lbm({
+    name              = "goops_rings:remove_"..g:gsub('.*:',''),
+    nodenames         = {g},
+    run_at_every_load = true,
+    action            = function(pos,node) minetest.swap_node(pos,{name = n}) end,
+  })
+end
 
-minetest.register_lbm({
-  name              = "goops_rings:remove_light",
-  nodenames         = {glownode},
-  run_at_every_load = true,
-  action            = minetest.remove_node,
-})
+for _,n in pairs(glownodes) do
+  register_glownode(n)
+end
+
+local function restore_node(pos)
+  local g = minetest.get_node(pos).name
+  if revert[g] then
+    minetest.swap_node(pos, {name = revert[g]})
+  end
+end
 
 -- defs
 
@@ -167,18 +175,21 @@ local function shine_globalstep(dtime)
         end
       end
       local pos = vector.add(vector.round(minetest.get_player_by_name(u):get_pos()),{x=0,y=1,z=0})
-      if minetest.get_node(pos).name=="air" then
-        minetest.set_node(pos, {name = glownode})
-        path[pos] = 0
+
+      for _,n in pairs(glownodes) do
+        if minetest.get_node(pos).name == n then
+          minetest.set_node(pos, {name = "goops_rings:"..n:gsub('.*:','').."_glowing"})
+          path[pos] = 0
+        end
       end
+
       for n,t in pairs(path) do
         if n~= pos and t > glowtime then
-          if minetest.get_node(n).name == glownode then
-            minetest.remove_node(n)
-          end
+          restore_node(n)
           path[n] = nil
         end
       end
+
     end
   end
 end
@@ -186,7 +197,7 @@ end
 local function shine_on_deactivate(user)
   local p = rings.profile(user)
   for n,t in pairs(p.fx.data.path) do
-    minetest.remove_node(n)
+    restore_node(n)
   end
   p.fx.data.path = {}
 end
