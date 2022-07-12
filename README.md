@@ -24,3 +24,5 @@ Minetest mod that adds rings with temporary player effects
   - in sneak mode: toggles automatic activation/toggles hud (primary/secondary usage).
 
 * ![ring](./textures/goops_random_ring1.png) _Random Ring_ : drops a random ring
+
+Glooptest mod dependency was made optional by including part of its code.

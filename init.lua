@@ -1,8 +1,12 @@
 rings = {}
 
+local modpath = minetest.get_modpath(minetest.get_current_modname())
+
 ---------------
 -- MATERIALS -- (NB: only dependencies to moreores and glooptest)
 ---------------
+
+dofile(modpath .. '/glooptest.lua')
 
 rings.lumps ={
   Ag = "moreores:silver_lump",
@@ -11,18 +15,16 @@ rings.lumps ={
 }
 
 rings.gems ={
-  emerald = "glooptest:emerald_gem",
-  ruby = "glooptest:ruby_gem",
-  sapphire = "glooptest:sapphire_gem",
-  topaz = "glooptest:topaz_gem",
-  amethyst = "glooptest:amethyst_gem"
+  emerald = "goops_rings:emerald_gem",
+  ruby = "goops_rings:ruby_gem",
+  sapphire = "goops_rings:sapphire_gem",
+  topaz = "goops_rings:topaz_gem",
+  amethyst = "goops_rings:amethyst_gem"
 }
 
 ----------------
 -- LOAD FILES --
 ----------------
-
-local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 dofile(modpath .. '/effects.lua')
 
