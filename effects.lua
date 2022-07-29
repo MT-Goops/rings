@@ -132,7 +132,7 @@ local glowtime = .6
 local glownodes = { "air", "default:water_source", "default:water_flowing", "default:river_water_source", "default:river_water_flowing" }
 
 -- glownodes
- 
+
 local revert = {}
 
 local function register_glownode(n)
@@ -202,6 +202,35 @@ local function shine_on_deactivate(user)
   p.fx.data.path = {}
 end
 
+---------------
+-- INVISIBLE --
+---------------
+
+local function invisible_on_activate(user)
+  -- hide player and name tag
+  local prop = {
+    visual_size = {x = 0, y = 0},
+    -- collisionbox = {0, 0, 0, 0, 0, 0}
+  }
+  user:set_nametag_attributes({
+    color = {a = 0, r = 255, g = 255, b = 255}
+  })
+	user:set_properties(prop)
+end
+
+local function invisible_on_deactivate(user)
+    -- show player and tag
+    local prop = {
+      visual_size = {x = 1, y = 1},
+      -- collisionbox = {-0.35, -1, -0.35, 0.35, 1, 0.35}
+    }
+
+    user:set_nametag_attributes({
+      color = {a = 255, r = 255, g = 255, b = 255}
+    })
+    user:set_properties(prop)
+  end
+
 ----------------------
 -- REGISTER EFFECTS --
 ----------------------
@@ -230,6 +259,11 @@ local defs = {
   iron_fist       = {
     name          = "Iron Fist",
     apply         = iron_fist_apply,
+  },
+  invisible       = {
+    name          = "Invisible",
+    on_activate   = invisible_on_activate,
+    on_deactivate = invisible_on_deactivate,
   },
 }
 

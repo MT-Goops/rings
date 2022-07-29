@@ -58,6 +58,10 @@ local ring_models = {
     gem = rings.gems.emerald,
     effect = rings.effects.iron_fist,
   },
+  hiding = {
+    gem = rings.gems.topaz,
+    effect = rings.effects.invisible,
+  },
 }
 
 local ring_quality = {
