@@ -15,7 +15,8 @@ table.insert(armor.elements, "ring") -- use right mouse button to equip/swap arm
 ]]
 
 function rings.get_ring(user, bool)
-  local R = armor:get_weared_armor_elements(user).ring
+  local el = armor:get_weared_armor_elements(user)
+  local R = el and el.ring
   if not R then
     if bool then
       minetest.chat_send_player(user:get_player_name(),
@@ -57,6 +58,10 @@ local ring_models = {
   hardening = {
     gem = rings.gems.emerald,
     effect = rings.effects.iron_fist,
+  },
+  hiding = {
+    gem = rings.gems.topaz,
+    effect = rings.effects.invisible,
   },
 }
 
